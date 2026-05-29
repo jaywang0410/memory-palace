@@ -9,6 +9,8 @@ import Desk from './furniture/Desk'
 import Bookshelf from './furniture/Bookshelf'
 import Plant from './furniture/Plant'
 import CorkBoard from './furniture/CorkBoard'
+import Speaker from './furniture/Speaker'
+import TV from './furniture/TV'
 import Skylight from './Skylight'
 import VolumetricLight from './VolumetricLight'
 
@@ -40,6 +42,8 @@ export default function RoomScene({ onEnterStarfield, onFurnitureClick }: Props)
         <Bookshelf onClick={() => onFurnitureClick?.('bookshelf')} />
         <Plant onClick={() => onFurnitureClick?.('plant')} />
         <CorkBoard onClick={() => onFurnitureClick?.('corkboard')} />
+        <Speaker onClick={() => onFurnitureClick?.('speaker')} />
+        <TV onClick={() => onFurnitureClick?.('tv')} />
         <Skylight onClick={onEnterStarfield} />
         <InteractionRaycaster onInteract={handleInteract} />
         <OrbitControls

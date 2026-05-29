@@ -4,8 +4,13 @@ import { useMemoryStore } from '../stores/useMemoryStore'
 import RoomScene from './room/RoomScene'
 import StarfieldContainer from './starfield/StarfieldContainer'
 import MemoryCard from './ui/MemoryCard'
+import TodoModal from './ui/TodoModal'
+import MovieModal from './ui/MovieModal'
+import SongModal from './ui/SongModal'
+import BookModal from './ui/BookModal'
 
 type FadeState = 'visible' | 'fading-out' | 'fading-in'
+type ModalType = 'diary' | 'desk' | 'tv' | 'speaker' | 'bookshelf' | 'corkboard' | null
 
 const FADE_DURATION = 300
 
@@ -14,7 +19,7 @@ export default function SceneSwitcher() {
   const setScene = useUIStore((s) => s.setScene)
 
   const [fadeState, setFadeState] = useState<FadeState>('visible')
-  const [showDiary, setShowDiary] = useState(false)
+  const [activeModal, setActiveModal] = useState<ModalType>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const memories = useMemoryStore((s) => s.memories)
@@ -46,6 +51,21 @@ export default function SceneSwitcher() {
     [setScene]
   )
 
+  const handleFurnitureClick = (id: string) => {
+    const modalMap: Record<string, ModalType> = {
+      diary: 'diary',
+      desk: 'desk',
+      tv: 'tv',
+      speaker: 'speaker',
+      bookshelf: 'bookshelf',
+      corkboard: 'corkboard',
+    }
+    const modal = modalMap[id]
+    if (modal) {
+      setActiveModal(modal)
+    }
+  }
+
   const isRoomActive = currentScene === 'room'
   const isStarfieldActive = currentScene === 'starfield'
 
@@ -64,16 +84,22 @@ export default function SceneSwitcher() {
       >
         <RoomScene
           onEnterStarfield={() => switchScene('starfield')}
-          onFurnitureClick={(id) => {
-            if (id === 'diary' && diaryMemoryId) {
-              setShowDiary(true)
-            }
-          }}
+          onFurnitureClick={handleFurnitureClick}
         />
-        {showDiary && diaryMemoryId && (
-          <MemoryCard memoryId={diaryMemoryId} onClose={() => setShowDiary(false)} />
+
+        {/* Modals */}
+        {activeModal === 'diary' && diaryMemoryId && (
+          <MemoryCard memoryId={diaryMemoryId} onClose={() => setActiveModal(null)} />
         )}
-        {/* DEBUG: direct button to enter starfield */}
+        {activeModal === 'desk' && <TodoModal onClose={() => setActiveModal(null)} />}
+        {activeModal === 'tv' && <MovieModal onClose={() => setActiveModal(null)} />}
+        {activeModal === 'speaker' && <SongModal onClose={() => setActiveModal(null)} />}
+        {activeModal === 'bookshelf' && <BookModal onClose={() => setActiveModal(null)} />}
+        {activeModal === 'corkboard' && diaryMemoryId && (
+          <MemoryCard memoryId={diaryMemoryId} onClose={() => setActiveModal(null)} />
+        )}
+
+        {/* Enter Starfield button */}
         <button
           onClick={() => switchScene('starfield')}
           style={{
