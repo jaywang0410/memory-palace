@@ -190,6 +190,51 @@ export default function StarCanvas() {
       }
     }
 
+    // Draw region backgrounds
+    const regionCenters: Record<StarRegion, { x: number; y: number; color: string; radius: number }> = {
+      core: { x: width / 2, y: height / 2, color: '#FFD700', radius: 200 },
+      daily: { x: width / 2, y: height / 2 + 200, color: '#7EC8E3', radius: 350 },
+      emotion: { x: width / 2 - 300, y: height / 2 + 150, color: '#FFE4B5', radius: 200 },
+      forgotten: { x: width / 2 + 300, y: height / 2 + 200, color: '#696969', radius: 180 },
+      imagination: { x: width / 2, y: height / 2 - 250, color: '#DDA0DD', radius: 150 },
+    }
+
+    for (const [region, center] of Object.entries(regionCenters)) {
+      const gradient = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, center.radius)
+      const baseAlpha = region === 'core' ? '08' : region === 'forgotten' ? '15' : '10'
+      gradient.addColorStop(0, center.color + baseAlpha)
+      gradient.addColorStop(1, center.color + '00')
+      ctx.fillStyle = gradient
+      ctx.beginPath()
+      ctx.arc(center.x, center.y, center.radius, 0, Math.PI * 2)
+      ctx.fill()
+    }
+
+    // Draw emotion-specific nebulas
+    const emotionGroups: Record<string, { color: string; nodes: D3StarNode[] }> = {}
+    nodes.forEach((node) => {
+      if (node.region === 'emotion') {
+        const emotionColor = EMOTION_COLORS[node.id] || COLORS.dailyStar
+        if (!emotionGroups[emotionColor]) {
+          emotionGroups[emotionColor] = { color: emotionColor, nodes: [] }
+        }
+        emotionGroups[emotionColor].nodes.push(node)
+      }
+    })
+
+    for (const group of Object.values(emotionGroups)) {
+      if (group.nodes.length === 0) continue
+      const avgX = group.nodes.reduce((sum, n) => sum + n.x, 0) / group.nodes.length
+      const avgY = group.nodes.reduce((sum, n) => sum + n.y, 0) / group.nodes.length
+      const gradient = ctx.createRadialGradient(avgX, avgY, 0, avgX, avgY, 100)
+      gradient.addColorStop(0, group.color + '15')
+      gradient.addColorStop(1, group.color + '00')
+      ctx.fillStyle = gradient
+      ctx.beginPath()
+      ctx.arc(avgX, avgY, 100, 0, Math.PI * 2)
+      ctx.fill()
+    }
+
     // Draw links
     for (const link of links) {
       const sourceNode = nodes.find((n) => n.id === (typeof link.source === 'string' ? link.source : link.source.id))
@@ -255,6 +300,43 @@ export default function StarCanvas() {
     }
 
     ctx.globalAlpha = 1
+
+    // Draw AI Spirit
+    const time = Date.now() * 0.0005
+    const spiritX = width / 2 + Math.sin(time) * 300
+    const spiritY = height / 2 + Math.cos(time * 0.7) * 200
+    const spiritPulse = Math.sin(Date.now() * 0.003) * 0.3 + 0.7
+
+    // Outer glow
+    const spiritOuterGradient = ctx.createRadialGradient(spiritX, spiritY, 0, spiritX, spiritY, 40 * spiritPulse)
+    spiritOuterGradient.addColorStop(0, '#FFD700' + '30')
+    spiritOuterGradient.addColorStop(1, '#FFD700' + '00')
+    ctx.fillStyle = spiritOuterGradient
+    ctx.beginPath()
+    ctx.arc(spiritX, spiritY, 40 * spiritPulse, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Inner glow
+    const spiritInnerGradient = ctx.createRadialGradient(spiritX, spiritY, 0, spiritX, spiritY, 15)
+    spiritInnerGradient.addColorStop(0, '#FFD700')
+    spiritInnerGradient.addColorStop(1, '#FFF8DC' + '80')
+    ctx.fillStyle = spiritInnerGradient
+    ctx.beginPath()
+    ctx.arc(spiritX, spiritY, 15, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Core
+    ctx.fillStyle = '#FFFFFF'
+    ctx.beginPath()
+    ctx.arc(spiritX, spiritY, 5, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Label
+    ctx.fillStyle = '#FFD700'
+    ctx.font = '12px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('AI', spiritX, spiritY + 30)
+
     ctx.restore()
   }
 

@@ -1,10 +1,22 @@
 import StarCanvas from './StarCanvas'
+import { useStarfieldStore } from '../../stores/useStarfieldStore'
+import type { RegionType } from '../../types/starfield'
 
 interface Props {
   onBackToRoom?: () => void
 }
 
+const REGIONS: { id: RegionType; label: string; color: string }[] = [
+  { id: 'core', label: '核心星座', color: '#FFD700' },
+  { id: 'daily', label: '日常星带', color: '#7EC8E3' },
+  { id: 'emotion', label: '情绪风暴', color: '#F4A261' },
+  { id: 'forgotten', label: '遗忘坟场', color: '#A9A9A9' },
+]
+
 export default function StarfieldContainer({ onBackToRoom }: Props) {
+  const zoomToRegion = useStarfieldStore((s) => s.zoomToRegion)
+  const currentRegion = useStarfieldStore((s) => s.currentRegion)
+
   return (
     <div
       style={{
@@ -39,6 +51,53 @@ export default function StarfieldContainer({ onBackToRoom }: Props) {
       >
         返回房间
       </button>
+
+      {/* Region Navigation */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '1.5rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          gap: '0.5rem',
+          zIndex: 10,
+        }}
+      >
+        {REGIONS.map((region) => (
+          <button
+            key={region.id}
+            onClick={() => zoomToRegion(region.id)}
+            style={{
+              padding: '0.4rem 0.8rem',
+              backgroundColor:
+                currentRegion === region.id
+                  ? 'rgba(255,248,231,0.95)'
+                  : 'rgba(255,248,231,0.7)',
+              border: `2px solid ${currentRegion === region.id ? region.color : 'transparent'}`,
+              borderRadius: '1rem',
+              color: '#5D4037',
+              fontSize: '0.8rem',
+              fontWeight: currentRegion === region.id ? 600 : 400,
+              cursor: 'pointer',
+              backdropFilter: 'blur(8px)',
+              transition: 'all 0.2s',
+            }}
+          >
+            <span
+              style={{
+                display: 'inline-block',
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: region.color,
+                marginRight: 6,
+              }}
+            />
+            {region.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

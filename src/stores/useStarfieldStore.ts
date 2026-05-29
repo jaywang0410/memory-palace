@@ -30,7 +30,17 @@ export const useStarfieldStore = create<StarfieldState>((set) => ({
   showConstellationNames: true,
 
   focusStar: (id) => set({ focusedStarId: id }),
-  zoomToRegion: (region) => set({ currentRegion: region }),
+  zoomToRegion: (region) => {
+    const regionCenters: Record<string, { x: number; y: number }> = {
+      core: { x: 0, y: 0 },
+      daily: { x: 0, y: 200 },
+      emotion: { x: -300, y: 150 },
+      forgotten: { x: 300, y: 200 },
+      imagination: { x: 0, y: -250 },
+    }
+    const center = region ? regionCenters[region] || { x: 0, y: 0 } : { x: 0, y: 0 }
+    set({ currentRegion: region, cameraPosition: center })
+  },
   applyFilter: (tags, timeRange = null) => set({ filterTags: tags, filterTimeRange: timeRange }),
   panCamera: (deltaX, deltaY) => set((state) => ({
     cameraPosition: {
