@@ -15,27 +15,6 @@ export default function StarfieldContainer({ onBackToRoom }: Props) {
         background: 'linear-gradient(#1A1B3A, #0F1123)',
       }}
     >
-      {/* DEBUG: visible marker to confirm starfield is rendered */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: '#FFD700',
-          fontSize: '2rem',
-          fontWeight: 'bold',
-          zIndex: 5,
-          pointerEvents: 'none',
-          textAlign: 'center',
-        }}
-      >
-        <div>✨ 星空加载中...</div>
-        <div style={{ fontSize: '1rem', color: '#7EC8E3', marginTop: '1rem' }}>
-          如果看不到星星，请检查控制台错误
-        </div>
-      </div>
-
       <StarCanvas />
 
       {/* Back to Room button */}
