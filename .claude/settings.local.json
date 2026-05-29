@@ -15,7 +15,9 @@
       "Bash(curl -v http://localhost:5173/)",
       "Bash(curl --noproxy localhost -s http://localhost:5173/)",
       "Bash(curl --noproxy localhost -s http://localhost:5173/src/main.tsx)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(git checkout *)",
+      "Bash(git rm *)"
     ]
   }
 }
