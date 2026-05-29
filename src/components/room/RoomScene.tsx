@@ -5,6 +5,10 @@ import RoomEnvironment from './RoomEnvironment'
 import InteractionRaycaster from './InteractionRaycaster'
 import AICharacter from './AICharacter'
 import Diary from './furniture/Diary'
+import Desk from './furniture/Desk'
+import Bookshelf from './furniture/Bookshelf'
+import Plant from './furniture/Plant'
+import CorkBoard from './furniture/CorkBoard'
 import Skylight from './Skylight'
 import VolumetricLight from './VolumetricLight'
 
@@ -32,6 +36,10 @@ export default function RoomScene({ onEnterStarfield, onFurnitureClick }: Props)
         <VolumetricLight />
         <AICharacter />
         <Diary onClick={() => onFurnitureClick?.('diary')} />
+        <Desk onClick={() => onFurnitureClick?.('desk')} />
+        <Bookshelf onClick={() => onFurnitureClick?.('bookshelf')} />
+        <Plant onClick={() => onFurnitureClick?.('plant')} />
+        <CorkBoard onClick={() => onFurnitureClick?.('corkboard')} />
         <Skylight onClick={onEnterStarfield} />
         <InteractionRaycaster onInteract={handleInteract} />
         <OrbitControls
