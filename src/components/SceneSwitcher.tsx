@@ -1,7 +1,9 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useMemo } from 'react'
 import { useUIStore } from '../stores/useUIStore'
+import { useMemoryStore } from '../stores/useMemoryStore'
 import RoomScene from './room/RoomScene'
 import StarfieldContainer from './starfield/StarfieldContainer'
+import MemoryCard from './ui/MemoryCard'
 
 type FadeState = 'visible' | 'fading-out' | 'fading-in'
 
@@ -12,7 +14,15 @@ export default function SceneSwitcher() {
   const setScene = useUIStore((s) => s.setScene)
 
   const [fadeState, setFadeState] = useState<FadeState>('visible')
+  const [showDiary, setShowDiary] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const memories = useMemoryStore((s) => s.memories)
+  const diaryMemoryId = useMemo(() => {
+    const dailyMemories = Object.values(memories).filter((m) => m.region === 'daily')
+    if (dailyMemories.length === 0) return null
+    return dailyMemories[Math.floor(Math.random() * dailyMemories.length)].id
+  }, [memories])
 
   const switchScene = useCallback(
     (scene: 'room' | 'starfield') => {
@@ -54,8 +64,15 @@ export default function SceneSwitcher() {
       >
         <RoomScene
           onEnterStarfield={() => switchScene('starfield')}
-          onFurnitureClick={(id) => console.log('Furniture clicked:', id)}
+          onFurnitureClick={(id) => {
+            if (id === 'diary' && diaryMemoryId) {
+              setShowDiary(true)
+            }
+          }}
         />
+        {showDiary && diaryMemoryId && (
+          <MemoryCard memoryId={diaryMemoryId} onClose={() => setShowDiary(false)} />
+        )}
         {/* DEBUG: direct button to enter starfield */}
         <button
           onClick={() => switchScene('starfield')}
