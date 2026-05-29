@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect } from 'react'
 import {
   forceSimulation,
   forceManyBody,
@@ -9,11 +9,11 @@ import {
   type Simulation,
   type SimulationNodeDatum,
 } from 'd3-force'
-import type { StarNode, StarBridge } from '../../types/starfield'
+import type { StarBridge } from '../../types/starfield'
 import type { MemoryCard, StarRegion } from '../../types/memory'
 import { useMemoryStore } from '../../stores/useMemoryStore'
 import { useStarfieldStore } from '../../stores/useStarfieldStore'
-import { getRegionCenter, getPulse } from '../../utils/starPositioner'
+import { getRegionCenter } from '../../utils/starPositioner'
 import { COLORS } from '../../utils/colorPalette'
 
 interface D3StarNode extends SimulationNodeDatum {
@@ -125,6 +125,10 @@ function createStarBridges(memories: Record<string, MemoryCard>): StarBridge[] {
   return bridges
 }
 
+function getPulse(phase: number): number {
+  return Math.sin(Date.now() * 0.001 + phase) * 0.2 + 0.8
+}
+
 export default function StarCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const nodesRef = useRef<D3StarNode[]>([])
@@ -133,18 +137,22 @@ export default function StarCanvas() {
   const animFrameRef = useRef<number>(0)
 
   const memories = useMemoryStore((state) => state.memories)
-  const cameraPosition = useStarfieldStore((state) => state.cameraPosition)
-  const zoomLevel = useStarfieldStore((state) => state.zoomLevel)
-  const focusedStarId = useStarfieldStore((state) => state.focusedStarId)
 
   const isPanningRef = useRef(false)
   const lastMouseRef = useRef({ x: 0, y: 0 })
 
-  const render = useCallback(() => {
+  // Render function - reads latest store state directly
+  const render = () => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+
+    // Read latest camera state directly from store
+    const store = useStarfieldStore.getState()
+    const cameraPosition = store.cameraPosition
+    const zoomLevel = store.zoomLevel
+    const focusedStarId = store.focusedStarId
 
     const width = canvas.width
     const height = canvas.height
@@ -166,9 +174,9 @@ export default function StarCanvas() {
     // Apply camera transform
     const cx = width / 2
     const cy = height / 2
-    ctx.translate(cx + cameraPosition.x, cy + cameraPosition.y)
+    ctx.translate(cx, cy)
     ctx.scale(zoomLevel, zoomLevel)
-    ctx.translate(-cx, -cy)
+    ctx.translate(-cameraPosition.x, -cameraPosition.y)
 
     // Determine which stars are related to the focused star
     const relatedIds = new Set<string>()
@@ -217,6 +225,8 @@ export default function StarCanvas() {
         nodeOpacity = 0.3
       }
 
+      if (nodeOpacity < 0.3) continue
+
       ctx.globalAlpha = nodeOpacity
 
       // Outer glow
@@ -246,83 +256,9 @@ export default function StarCanvas() {
 
     ctx.globalAlpha = 1
     ctx.restore()
-  }, [cameraPosition, zoomLevel, focusedStarId])
+  }
 
-  // Interaction event listeners
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault()
-      const factor = e.deltaY > 0 ? 0.9 : 1.1
-      useStarfieldStore.getState().zoomCamera(factor)
-    }
-
-    const getWorldCoordinates = (mouseX: number, mouseY: number) => {
-      const width = canvas.width
-      const height = canvas.height
-      const worldX = (mouseX - width / 2) / zoomLevel + cameraPosition.x
-      const worldY = (mouseY - height / 2) / zoomLevel + cameraPosition.y
-      return { x: worldX, y: worldY }
-    }
-
-    const findStarAtPosition = (mouseX: number, mouseY: number) => {
-      const worldPos = getWorldCoordinates(mouseX, mouseY)
-      const nodes = nodesRef.current
-      for (const node of nodes) {
-        const dx = worldPos.x - node.x
-        const dy = worldPos.y - node.y
-        const distance = Math.sqrt(dx * dx + dy * dy)
-        if (distance < node.radius * 3) {
-          return node.id
-        }
-      }
-      return null
-    }
-
-    const handleClick = (e: MouseEvent) => {
-      const starId = findStarAtPosition(e.clientX, e.clientY)
-      useStarfieldStore.getState().focusStar(starId)
-    }
-
-    const handleMouseDown = (e: MouseEvent) => {
-      const starId = findStarAtPosition(e.clientX, e.clientY)
-      if (starId) {
-        // Clicked on a star — let click handler deal with it, don't pan
-        return
-      }
-      isPanningRef.current = true
-      lastMouseRef.current = { x: e.clientX, y: e.clientY }
-    }
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isPanningRef.current) return
-      const deltaX = e.clientX - lastMouseRef.current.x
-      const deltaY = e.clientY - lastMouseRef.current.y
-      lastMouseRef.current = { x: e.clientX, y: e.clientY }
-      useStarfieldStore.getState().panCamera(deltaX, deltaY)
-    }
-
-    const handleMouseUp = () => {
-      isPanningRef.current = false
-    }
-
-    canvas.addEventListener('wheel', handleWheel, { passive: false })
-    canvas.addEventListener('click', handleClick)
-    canvas.addEventListener('mousedown', handleMouseDown)
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
-
-    return () => {
-      canvas.removeEventListener('wheel', handleWheel)
-      canvas.removeEventListener('click', handleClick)
-      canvas.removeEventListener('mousedown', handleMouseDown)
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [zoomLevel, cameraPosition])
-
+  // Initialize nodes, links, and simulation (runs once on mount)
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -366,7 +302,7 @@ export default function StarCanvas() {
 
     simulationRef.current = sim
 
-    // Animation loop
+    // Animation loop - independent of React state
     const animate = () => {
       render()
       animFrameRef.current = requestAnimationFrame(animate)
@@ -378,7 +314,83 @@ export default function StarCanvas() {
       sim.stop()
       cancelAnimationFrame(animFrameRef.current)
     }
-  }, [memories, render])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memories])
+
+  // Interaction event listeners
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const factor = e.deltaY > 0 ? 0.9 : 1.1
+      useStarfieldStore.getState().zoomCamera(factor)
+    }
+
+    const getWorldCoordinates = (mouseX: number, mouseY: number) => {
+      const width = canvas.width
+      const height = canvas.height
+      const store = useStarfieldStore.getState()
+      const worldX = (mouseX - width / 2) / store.zoomLevel + store.cameraPosition.x
+      const worldY = (mouseY - height / 2) / store.zoomLevel + store.cameraPosition.y
+      return { x: worldX, y: worldY }
+    }
+
+    const findStarAtPosition = (mouseX: number, mouseY: number) => {
+      const worldPos = getWorldCoordinates(mouseX, mouseY)
+      const nodes = nodesRef.current
+      for (const node of nodes) {
+        const dx = worldPos.x - node.x
+        const dy = worldPos.y - node.y
+        const distance = Math.sqrt(dx * dx + dy * dy)
+        if (distance < node.radius * 3) {
+          return node.id
+        }
+      }
+      return null
+    }
+
+    const handleClick = (e: MouseEvent) => {
+      const starId = findStarAtPosition(e.clientX, e.clientY)
+      useStarfieldStore.getState().focusStar(starId)
+    }
+
+    const handleMouseDown = (e: MouseEvent) => {
+      const starId = findStarAtPosition(e.clientX, e.clientY)
+      if (starId) {
+        return
+      }
+      isPanningRef.current = true
+      lastMouseRef.current = { x: e.clientX, y: e.clientY }
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isPanningRef.current) return
+      const deltaX = e.clientX - lastMouseRef.current.x
+      const deltaY = e.clientY - lastMouseRef.current.y
+      lastMouseRef.current = { x: e.clientX, y: e.clientY }
+      useStarfieldStore.getState().panCamera(deltaX, deltaY)
+    }
+
+    const handleMouseUp = () => {
+      isPanningRef.current = false
+    }
+
+    canvas.addEventListener('wheel', handleWheel, { passive: false })
+    canvas.addEventListener('click', handleClick)
+    canvas.addEventListener('mousedown', handleMouseDown)
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      canvas.removeEventListener('wheel', handleWheel)
+      canvas.removeEventListener('click', handleClick)
+      canvas.removeEventListener('mousedown', handleMouseDown)
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [])
 
   return (
     <canvas
