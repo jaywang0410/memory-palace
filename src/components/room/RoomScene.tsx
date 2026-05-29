@@ -1,9 +1,11 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
+import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import RoomEnvironment from './RoomEnvironment'
 import InteractionRaycaster from './InteractionRaycaster'
 import Diary from './furniture/Diary'
 import Skylight from './Skylight'
+import VolumetricLight from './VolumetricLight'
 
 interface Props {
   onEnterStarfield?: () => void
@@ -26,6 +28,7 @@ export default function RoomScene({ onEnterStarfield, onFurnitureClick }: Props)
         shadows
       >
         <RoomEnvironment />
+        <VolumetricLight />
         <Diary onClick={() => onFurnitureClick?.('diary')} />
         <Skylight onClick={onEnterStarfield} />
         <InteractionRaycaster onInteract={handleInteract} />
@@ -37,6 +40,18 @@ export default function RoomScene({ onEnterStarfield, onFurnitureClick }: Props)
           minPolarAngle={0}
           maxPolarAngle={Math.PI / 2 - 0.1}
         />
+        <EffectComposer>
+          <Bloom
+            intensity={0.5}
+            luminanceThreshold={0.4}
+            luminanceSmoothing={0.9}
+          />
+          <Vignette
+            eskil={false}
+            offset={0.1}
+            darkness={0.5}
+          />
+        </EffectComposer>
       </Canvas>
     </div>
   )
