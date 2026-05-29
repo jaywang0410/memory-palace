@@ -1,6 +1,8 @@
 import { Canvas } from '@react-three/fiber'
 import RoomEnvironment from './RoomEnvironment'
 import InteractionRaycaster from './InteractionRaycaster'
+import Diary from './furniture/Diary'
+import Skylight from './Skylight'
 
 interface Props {
   onEnterStarfield?: () => void
@@ -9,7 +11,11 @@ interface Props {
 
 export default function RoomScene({ onEnterStarfield, onFurnitureClick }: Props) {
   const handleInteract = (objectName: string) => {
-    onFurnitureClick?.(objectName)
+    if (objectName === 'skylight') {
+      onEnterStarfield?.()
+    } else {
+      onFurnitureClick?.(objectName)
+    }
   }
 
   return (
@@ -19,6 +25,8 @@ export default function RoomScene({ onEnterStarfield, onFurnitureClick }: Props)
         shadows
       >
         <RoomEnvironment />
+        <Diary onClick={() => onFurnitureClick?.('diary')} />
+        <Skylight onClick={onEnterStarfield} />
         <InteractionRaycaster onInteract={handleInteract} />
       </Canvas>
     </div>

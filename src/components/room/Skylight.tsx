@@ -11,12 +11,14 @@ export default function Skylight({ onClick }: Props) {
   const meshRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.MeshStandardMaterial>(null)
   const skylightGlow = useRoomStore((state) => state.skylightGlow)
+  // Always show a subtle glow so users can find the entrance
+  const effectiveGlow = Math.max(0.3, skylightGlow)
 
   useFrame((state) => {
     if (materialRef.current) {
       const elapsedTime = state.clock.elapsedTime
       const pulse = Math.sin(elapsedTime * 1.5) * 0.2 + 0.8
-      materialRef.current.emissiveIntensity = skylightGlow * pulse * 0.5
+      materialRef.current.emissiveIntensity = effectiveGlow * pulse * 0.5
     }
   })
 
