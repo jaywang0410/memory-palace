@@ -3,6 +3,7 @@ import { OrbitControls } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import RoomEnvironment from './RoomEnvironment'
 import InteractionRaycaster from './InteractionRaycaster'
+import AICharacter from './AICharacter'
 import Diary from './furniture/Diary'
 import Skylight from './Skylight'
 import VolumetricLight from './VolumetricLight'
@@ -29,6 +30,7 @@ export default function RoomScene({ onEnterStarfield, onFurnitureClick }: Props)
       >
         <RoomEnvironment />
         <VolumetricLight />
+        <AICharacter />
         <Diary onClick={() => onFurnitureClick?.('diary')} />
         <Skylight onClick={onEnterStarfield} />
         <InteractionRaycaster onInteract={handleInteract} />
