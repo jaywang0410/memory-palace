@@ -56,6 +56,26 @@ export default function SceneSwitcher() {
           onEnterStarfield={() => switchScene('starfield')}
           onFurnitureClick={(id) => console.log('Furniture clicked:', id)}
         />
+        {/* DEBUG: direct button to enter starfield */}
+        <button
+          onClick={() => switchScene('starfield')}
+          style={{
+            position: 'absolute',
+            bottom: '2rem',
+            right: '2rem',
+            padding: '0.75rem 1.5rem',
+            background: 'rgba(255,215,0,0.9)',
+            border: '2px solid #FFD700',
+            borderRadius: '1rem',
+            color: '#1A1B3A',
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            zIndex: 100,
+          }}
+        >
+          🌟 进入星空
+        </button>
       </div>
 
       {/* Starfield Scene */}
