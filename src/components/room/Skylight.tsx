@@ -31,11 +31,11 @@ export default function Skylight({ onClick }: Props) {
     <mesh
       ref={meshRef}
       name="skylight"
-      position={[0, 9.99, 0]}
+      position={[0, 9.95, 0]}
       rotation={[-Math.PI / 2, 0, 0]}
       onClick={handleClick}
     >
-      <planeGeometry args={[3, 3]} />
+      <planeGeometry args={[4, 4]} />
       <meshStandardMaterial
         ref={materialRef}
         color="#1A1B3A"

@@ -21,7 +21,7 @@ export default function RoomScene({ onEnterStarfield, onFurnitureClick }: Props)
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <Canvas
-        camera={{ position: [5, 5, 8], fov: 45 }}
+        camera={{ position: [0, 6, 12], fov: 50 }}
         shadows
       >
         <RoomEnvironment />
