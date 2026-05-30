@@ -1,16 +1,14 @@
-import { useState, useCallback, useRef, useMemo } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useUIStore } from '../stores/useUIStore'
-import { useMemoryStore } from '../stores/useMemoryStore'
-import RoomScene from './room/RoomScene'
+import Room2D, { type HotspotId } from './room2d/Room2D'
 import StarfieldContainer from './starfield/StarfieldContainer'
-import MemoryCard from './ui/MemoryCard'
-import TodoModal from './ui/TodoModal'
-import MovieModal from './ui/MovieModal'
-import SongModal from './ui/SongModal'
-import BookModal from './ui/BookModal'
+import CoreMemoryPanel from './ui/CoreMemoryPanel'
+import StarDetailPanel from './starfield/StarDetailPanel'
+import AscensionEffect from './room2d/AscensionEffect'
+import { useUnifiedMemoryStore } from '../stores/useUnifiedMemoryStore'
 
 type FadeState = 'visible' | 'fading-out' | 'fading-in'
-type ModalType = 'diary' | 'desk' | 'tv' | 'speaker' | 'bookshelf' | 'corkboard' | null
+type ModalType = 'diary' | 'desk' | 'tv' | 'speaker' | 'bookshelf' | null
 
 const FADE_DURATION = 300
 
@@ -20,14 +18,10 @@ export default function SceneSwitcher() {
 
   const [fadeState, setFadeState] = useState<FadeState>('visible')
   const [activeModal, setActiveModal] = useState<ModalType>(null)
+  const [isNightMode, setIsNightMode] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const memories = useMemoryStore((s) => s.memories)
-  const diaryMemoryId = useMemo(() => {
-    const dailyMemories = Object.values(memories).filter((m) => m.region === 'daily')
-    if (dailyMemories.length === 0) return null
-    return dailyMemories[Math.floor(Math.random() * dailyMemories.length)].id
-  }, [memories])
+  const ascendAllShortTerm = useUnifiedMemoryStore((s) => s.ascendAllShortTerm)
 
   const switchScene = useCallback(
     (scene: 'room' | 'starfield') => {
@@ -51,14 +45,34 @@ export default function SceneSwitcher() {
     [setScene]
   )
 
-  const handleFurnitureClick = (id: string) => {
+  // Listen for ascension trigger from ChatWidget
+  useEffect(() => {
+    const handleTrigger = () => {
+      ascendAllShortTerm()
+    }
+    window.addEventListener('trigger-ascension', handleTrigger)
+    return () => window.removeEventListener('trigger-ascension', handleTrigger)
+  }, [ascendAllShortTerm])
+
+  const handleAscensionComplete = useCallback(() => {
+    setTimeout(() => {
+      switchScene('starfield')
+      setIsNightMode(true)
+    }, 500)
+  }, [switchScene])
+
+  const handleHotspotClick = (id: HotspotId) => {
+    if (id === 'skylight') {
+      switchScene('starfield')
+      return
+    }
+
     const modalMap: Record<string, ModalType> = {
-      diary: 'diary',
-      desk: 'desk',
+      books: 'bookshelf',
       tv: 'tv',
       speaker: 'speaker',
-      bookshelf: 'bookshelf',
-      corkboard: 'corkboard',
+      notebook: 'diary',
+      computer: 'desk',
     }
     const modal = modalMap[id]
     if (modal) {
@@ -69,7 +83,6 @@ export default function SceneSwitcher() {
   const isRoomActive = currentScene === 'room'
   const isStarfieldActive = currentScene === 'starfield'
 
-  const isTransitioning = fadeState !== 'visible'
   const overlayOpacity = fadeState === 'fading-out' ? 1 : fadeState === 'fading-in' ? 1 : 0
 
   return (
@@ -82,43 +95,13 @@ export default function SceneSwitcher() {
           pointerEvents: isRoomActive ? 'auto' : 'none',
         }}
       >
-        <RoomScene
-          onEnterStarfield={() => switchScene('starfield')}
-          onFurnitureClick={handleFurnitureClick}
+        <Room2D
+          onHotspotClick={handleHotspotClick}
+          isNightMode={isNightMode}
+          onNightModeChange={setIsNightMode}
+          activeModal={activeModal}
+          onCloseModal={() => setActiveModal(null)}
         />
-
-        {/* Modals */}
-        {activeModal === 'diary' && diaryMemoryId && (
-          <MemoryCard memoryId={diaryMemoryId} onClose={() => setActiveModal(null)} />
-        )}
-        {activeModal === 'desk' && <TodoModal onClose={() => setActiveModal(null)} />}
-        {activeModal === 'tv' && <MovieModal onClose={() => setActiveModal(null)} />}
-        {activeModal === 'speaker' && <SongModal onClose={() => setActiveModal(null)} />}
-        {activeModal === 'bookshelf' && <BookModal onClose={() => setActiveModal(null)} />}
-        {activeModal === 'corkboard' && diaryMemoryId && (
-          <MemoryCard memoryId={diaryMemoryId} onClose={() => setActiveModal(null)} />
-        )}
-
-        {/* Enter Starfield button */}
-        <button
-          onClick={() => switchScene('starfield')}
-          style={{
-            position: 'absolute',
-            bottom: '2rem',
-            right: '2rem',
-            padding: '0.75rem 1.5rem',
-            background: 'rgba(255,215,0,0.9)',
-            border: '2px solid #FFD700',
-            borderRadius: '1rem',
-            color: '#1A1B3A',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            zIndex: 100,
-          }}
-        >
-          🌟 进入星空
-        </button>
       </div>
 
       {/* Starfield Scene */}
@@ -129,8 +112,18 @@ export default function SceneSwitcher() {
           pointerEvents: isStarfieldActive ? 'auto' : 'none',
         }}
       >
-        <StarfieldContainer onBackToRoom={() => switchScene('room')} />
+        <StarfieldContainer
+          onBackToRoom={() => {
+            switchScene('room')
+            setIsNightMode(false)
+          }}
+        />
+        <CoreMemoryPanel />
+        <StarDetailPanel />
       </div>
+
+      {/* Ascension Effect Overlay */}
+      <AscensionEffect onAscensionComplete={handleAscensionComplete} />
 
       {/* Fade overlay */}
       <div

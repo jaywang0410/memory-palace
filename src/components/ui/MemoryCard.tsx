@@ -1,4 +1,4 @@
-import { useMemoryStore } from '../../stores/useMemoryStore'
+import { useUnifiedMemoryStore } from '../../stores/useUnifiedMemoryStore'
 
 interface Props {
   memoryId: string
@@ -6,81 +6,98 @@ interface Props {
 }
 
 export default function MemoryCard({ memoryId, onClose }: Props) {
-  const memory = useMemoryStore((s) => s.memories[memoryId])
+  const memory = useUnifiedMemoryStore((s) => s.getMemoryById(memoryId))
 
   if (!memory) {
     return null
   }
 
-  const formattedDate = new Date(memory.timestamp).toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-
   return (
     <div
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-sm w-full p-6 rounded-2xl shadow-lg"
+      className="absolute z-30"
       style={{
-        backgroundColor: 'rgba(255, 248, 231, 0.9)',
-        border: '1px solid #D4A574',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
+        top: '30%',
+        left: '70%',
+        transform: 'translateX(-50%)',
+        minWidth: 280,
+        maxWidth: 320,
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(16px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+        borderRadius: 16,
+        padding: 20,
+        border: '1px solid rgba(255,255,255,0.5)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+        color: '#333',
       }}
+      onClick={(e) => e.stopPropagation()}
     >
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full text-xl leading-none transition-colors hover:bg-black/10"
-        style={{ color: '#5D4037' }}
-        aria-label="Close"
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 16,
+          borderBottom: '1px solid rgba(128,128,128,0.2)',
+          paddingBottom: 12,
+        }}
       >
-        &times;
-      </button>
+        <h3 style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>珍贵瞬间</h3>
+        <button
+          onClick={onClose}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: 20,
+            color: '#666',
+            cursor: 'pointer',
+          }}
+        >
+          &times;
+        </button>
+      </div>
 
       {/* Date */}
-      <p
-        className="text-sm mb-3"
-        style={{ color: '#8B7355' }}
-      >
-        {formattedDate}
+      <p style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>
+        {memory.date}
+      </p>
+
+      {/* Title */}
+      <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+        {memory.title}
       </p>
 
       {/* Content */}
-      <p
-        className="text-base leading-relaxed mb-4"
-        style={{ color: '#3E2723' }}
-      >
-        {memory.content}
+      <p style={{ fontSize: 14, lineHeight: 1.6, marginBottom: 12 }}>
+        {memory.event}
       </p>
 
-      {/* AI Note */}
-      {memory.aiNote && (
-        <p
-          className="text-sm italic mb-4"
-          style={{ color: '#8B7355' }}
+      {/* Scene & Emotion */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        <span
+          style={{
+            fontSize: 11,
+            padding: '2px 8px',
+            borderRadius: 12,
+            backgroundColor: 'rgba(212, 165, 116, 0.25)',
+            color: '#5D4037',
+          }}
         >
-          {memory.aiNote}
-        </p>
-      )}
-
-      {/* Tags */}
-      {memory.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {memory.tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-block px-3 py-1 text-xs rounded-full"
-              style={{
-                backgroundColor: 'rgba(212, 165, 116, 0.25)',
-                color: '#5D4037',
-              }}
-            >
-              #{tag}
-            </span>
-          ))}
-        </div>
-      )}
+          {memory.scene}
+        </span>
+        <span
+          style={{
+            fontSize: 11,
+            padding: '2px 8px',
+            borderRadius: 12,
+            backgroundColor: 'rgba(147, 197, 253, 0.25)',
+            color: '#4A6FA5',
+          }}
+        >
+          {memory.emotion}
+        </span>
+      </div>
     </div>
   )
 }

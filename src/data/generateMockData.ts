@@ -1,8 +1,6 @@
-import type { MemoryCard, EmotionType, MemoryCategory, MemoryStatus, StarRegion } from '../types/memory'
+import type { MemoryCard, EmotionType, MemoryCategory, StarRegion } from '../types/memory'
 
 const TAG_POOL = ['家庭', '工作', '旅行', '美食', '电影', '音乐', '宠物', '朋友', '健康', '学习']
-
-const EMOTION_TYPES: EmotionType[] = ['joy', 'sadness', 'anger', 'fear', 'neutral']
 
 // ===== Story Arcs: realistic narrative sequences =====
 

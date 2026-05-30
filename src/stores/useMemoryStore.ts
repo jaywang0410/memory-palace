@@ -21,7 +21,7 @@ interface MemoryState {
   demoteFromCore: (id: string) => void
 }
 
-export const useMemoryStore = create<MemoryState>((set, get) => ({
+export const useMemoryStore = create<MemoryState>((set) => ({
   memories: MOCK_MEMORIES.reduce((acc, mem) => {
     acc[mem.id] = mem
     return acc
@@ -107,7 +107,7 @@ export const useMemoryStore = create<MemoryState>((set, get) => ({
     })
   },
 
-  linkMemories: (id1, id2, strength) => {
+  linkMemories: (id1, id2, _strength) => {
     set(state => {
       const mem1 = state.memories[id1]
       if (!mem1) return state

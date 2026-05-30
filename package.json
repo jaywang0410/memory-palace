@@ -1,7 +1,7 @@
 {
-  "name": "robot",
-  "private": true,
-  "version": "0.0.0",
+  "name": "smart-room-ui",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,39 +10,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@react-three/drei": "^9.122.0",
-    "@react-three/fiber": "^8.18.0",
-    "@react-three/postprocessing": "^2.19.1",
-    "d3": "^7.9.0",
-    "framer-motion": "^12.40.0",
-    "gsap": "^3.15.0",
-    "postprocessing": "^6.39.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "three": "^0.184.0",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@types/d3": "^7.4.3",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
-    "@types/three": "^0.184.1",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
-    "jsdom": "^29.1.1",
     "postcss": "^8.5.15",
     "tailwindcss": "^3.4.19",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12",
-    "vitest": "^4.1.7"
+    "vite": "^8.0.12"
   }
 }

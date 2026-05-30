@@ -1,65 +1,97 @@
-import { MOCK_SONGS } from '../../data/mockFurnitureData'
-import FurnitureModal from './FurnitureModal'
+import { useInterestStore } from '../../stores/useInterestStore'
 
 interface Props {
   onClose: () => void
 }
 
 export default function SongModal({ onClose }: Props) {
+  const songs = useInterestStore((s) => s.furnitureContent.songs)
+
   return (
-    <FurnitureModal title="最近在听的歌" icon="🎵" onClose={onClose}>
-      <div className="space-y-3">
-        {MOCK_SONGS.map((song, index) => (
-          <div
-            key={song.id}
-            className="flex items-center gap-3 p-3 rounded-xl"
-            style={{ backgroundColor: 'rgba(212, 165, 116, 0.1)' }}
-          >
-            {/* Album art placeholder */}
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-              style={{ backgroundColor: song.color }}
-            >
-              🎶
-            </div>
-            {/* Song info */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate" style={{ color: '#3E2723' }}>
-                {song.title}
-              </p>
-              <p className="text-xs" style={{ color: '#8B7355' }}>
-                {song.artist}
-              </p>
-            </div>
-            {/* Mood tag */}
-            <span
-              className="text-xs px-2 py-1 rounded-full flex-shrink-0"
-              style={{
-                backgroundColor: song.color + '40',
-                color: '#5D4037',
-              }}
-            >
-              {song.mood}
-            </span>
-            {/* Playing indicator */}
-            {index === 0 && (
-              <div className="flex gap-0.5 items-end h-4">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="w-1 rounded-full animate-pulse"
-                    style={{
-                      backgroundColor: '#F4A261',
-                      height: `${8 + Math.random() * 8}px`,
-                      animationDelay: `${i * 0.2}s`,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+    <div
+      className="absolute z-30"
+      style={{
+        top: '65%',
+        left: '52%',
+        transform: 'translateX(-50%)',
+        minWidth: 280,
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(16px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+        borderRadius: 16,
+        padding: 20,
+        border: '1px solid rgba(255,255,255,0.5)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+        color: '#333',
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 16,
+          borderBottom: '1px solid rgba(128,128,128,0.2)',
+          paddingBottom: 12,
+        }}
+      >
+        <h3 style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>最近播放</h3>
+        <button
+          onClick={onClose}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: 20,
+            color: '#666',
+            cursor: 'pointer',
+          }}
+        >
+          &times;
+        </button>
       </div>
-    </FurnitureModal>
+
+      {/* Track list */}
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {songs.map((song, index) => (
+          <li
+            key={song.title}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '8px 0',
+              borderBottom: '1px solid rgba(128,128,128,0.1)',
+              fontSize: 13,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {index === 0 && (
+                <div style={{ display: 'flex', alignItems: 'end', height: 14, gap: 2 }}>
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: 3,
+                        borderRadius: 1,
+                        backgroundColor: '#F4A261',
+                        animation: `pulse-cyan ${0.8 + i * 0.2}s infinite alternate`,
+                        height: `${6 + i * 4}px`,
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+              <span style={{ fontWeight: 500 }}>{song.title}</span>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ color: '#666', fontSize: 11 }}>{song.artist}</div>
+              <div style={{ color: '#999', fontSize: 9, fontStyle: 'italic' }}>{song.reason}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }

@@ -1,8 +1,8 @@
 import { create } from 'zustand'
-import type { RegionType } from '../types/starfield'
+import type { ConstellationType } from '../types/starfield'
 
 interface StarfieldState {
-  currentRegion: RegionType
+  currentRegion: ConstellationType | null
   focusedStarId: string | null
   zoomLevel: number
   cameraPosition: { x: number; y: number }
@@ -12,7 +12,7 @@ interface StarfieldState {
   showConstellationNames: boolean
 
   focusStar: (id: string | null) => void
-  zoomToRegion: (region: RegionType) => void
+  zoomToRegion: (region: ConstellationType | null) => void
   applyFilter: (tags: string[], timeRange?: string | null) => void
   panCamera: (deltaX: number, deltaY: number) => void
   zoomCamera: (factor: number) => void

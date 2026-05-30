@@ -1,16 +1,18 @@
 import StarCanvas from './StarCanvas'
 import { useStarfieldStore } from '../../stores/useStarfieldStore'
-import type { RegionType } from '../../types/starfield'
+import type { ConstellationType } from '../../types/starfield'
 
 interface Props {
   onBackToRoom?: () => void
 }
 
-const REGIONS: { id: RegionType; label: string; color: string }[] = [
-  { id: 'core', label: '核心星座', color: '#FFD700' },
-  { id: 'daily', label: '日常星带', color: '#7EC8E3' },
-  { id: 'emotion', label: '情绪风暴', color: '#F4A261' },
-  { id: 'forgotten', label: '遗忘坟场', color: '#A9A9A9' },
+const REGIONS: { id: ConstellationType; label: string; color: string }[] = [
+  { id: 'core', label: '核心', color: '#FFD700' },
+  { id: 'daily', label: '日常', color: '#7EC8E3' },
+  { id: 'emotion', label: '情感', color: '#FFB6C1' },
+  { id: 'travel', label: '旅行', color: '#90EE90' },
+  { id: 'growth', label: '成长', color: '#DDA0DD' },
+  { id: 'social', label: '人际', color: '#FFA07A' },
 ]
 
 export default function StarfieldContainer({ onBackToRoom }: Props) {

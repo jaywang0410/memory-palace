@@ -6,11 +6,125 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #1A1B3A;
+  background: #0d0d0d;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 #root {
   width: 100vw;
   height: 100vh;
+}
+
+/* Hotspot pulse animations */
+@keyframes pulse-cyan {
+  0% { box-shadow: 0 0 0 0 rgba(38, 198, 218, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(38, 198, 218, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(38, 198, 218, 0); }
+}
+
+@keyframes pulse-yellow {
+  0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.6); }
+  70% { box-shadow: 0 0 0 15px rgba(250, 204, 21, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+}
+
+@keyframes pulse-purple {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+/* Night mode stars twinkle */
+@keyframes twinkle {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+@keyframes twinkle-fast {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.9; }
+}
+
+/* Stars overlay for night mode */
+.stars-overlay {
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #e0f2fe, rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 130px 80px, #bae6fd, rgba(0,0,0,0)),
+    radial-gradient(4px 4px at 160px 120px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 190px 20px, #e0f2fe, rgba(0,0,0,0));
+  background-size: 200px 200px;
+  animation: twinkle 4s infinite alternate ease-in-out;
+}
+
+.stars-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10px 10px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2.5px 2.5px at 50px 150px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 110px 90px, #e0f2fe, rgba(0,0,0,0)),
+    radial-gradient(3.5px 3.5px at 180px 130px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 220px 60px, #bae6fd, rgba(0,0,0,0));
+  background-size: 250px 250px;
+  animation: twinkle-fast 2.5s infinite alternate ease-in-out;
+}
+
+/* Core star pulse */
+@keyframes core-pulse {
+  0% {
+    box-shadow: 0 0 20px 5px rgba(255,255,255,0.9), 0 0 50px 15px rgba(135, 206, 250, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 30px 8px rgba(255,255,255,1), 0 0 70px 25px rgba(135, 206, 250, 0.8);
+  }
+}
+
+/* Memory collector glow pulse during ascension */
+@keyframes pulse-glow {
+  0% {
+    box-shadow:
+      inset -3px -3px 8px rgba(0,0,0,0.2),
+      inset 3px 3px 8px rgba(255,255,255,0.3),
+      0 0 60px rgba(147, 197, 253, 0.8),
+      0 0 100px rgba(99, 102, 241, 0.5);
+  }
+  100% {
+    box-shadow:
+      inset -3px -3px 8px rgba(0,0,0,0.2),
+      inset 3px 3px 8px rgba(255,255,255,0.5),
+      0 0 80px rgba(147, 197, 253, 1),
+      0 0 140px rgba(99, 102, 241, 0.7);
+  }
+}
+
+/* Ascension burst flash */
+@keyframes ascension-flash {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Ascension center burst */
+@keyframes ascension-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
 }
